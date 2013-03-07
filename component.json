@@ -1,0 +1,16 @@
+{
+  "name": "content",
+  "description": "test setup for components with travis support",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "manuelstofer/pflock": "*",
+    "manuelstofer/koboldmaki": "*",
+    "manuelstofer/richardparker": "*"
+  },
+  "development": {},
+  "scripts": [
+    "index.js",
+    "src/block.js"
+  ]
+}
