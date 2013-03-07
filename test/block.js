@@ -70,7 +70,10 @@ describe('block', function () {
             instance = content.block({
                 id:       '1',
                 storage:  storage,
-                template: template
+                templates: {
+                    example: template
+                },
+                template: 'example'
             }),
             title = instance.el.querySelector('#title');
 

@@ -26,8 +26,22 @@ module.exports = function block (options) {
                 });
             },
 
+            getTemplate: function () {
+                var templateName;
+                if (options.template) {
+                    if (typeof options.template === 'function') {
+                        return options.template;
+                    }
+                    templateName = options.template;
+                } else {
+                    templateName = instance.el.getAttribute('x-template').value;
+                }
+                return options.templates[templateName];
+            },
+
             render: function () {
-                instance.el.innerHTML = options.template(data);
+                var template = instance.getTemplate();
+                instance.el.innerHTML = template(data);
                 instance.emit('rendered');
                 instance.initBinding();
             }
