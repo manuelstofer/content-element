@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
+    "manuelstofer/each": "*",
     "manuelstofer/pflock": "*",
     "manuelstofer/koboldmaki": "*",
     "manuelstofer/richardparker": "*"

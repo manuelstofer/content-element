@@ -25,11 +25,12 @@
 </script>
 
 
-<script src="structure.js"></script>
 <script src="block.js"></script>
 <script>
-    if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
-    else { mocha.run(); }
+    window.addEventListener('load', function () {
+        if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
+        else { mocha.run(); }
+    });
 </script>
 </body>
 </html>

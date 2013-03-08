@@ -1,20 +1,22 @@
 'use strict';
-var view = require('koboldmaki'),
-    pflock = require('pflock');
+var view    = require('koboldmaki'),
+    pflock  = require('pflock'),
+    each    = require('each');
 
 module.exports = function block (options) {
     var data = {},
         binding,
         instance = {
+            el: options.el,
 
             initialize: function () {
-                options.storage.get(options.id, instance.setContent);
+                options.storage.get(instance.getId(), instance.setContent);
             },
 
             setContent: function (err, received) {
                 data = received;
                 if (err) {
-                    throw new Error('failed to fetch content for: ' + options.id);
+                    throw new Error('failed to fetch content for: ' + instance.getId());
                 }
                 instance.render();
             },
@@ -22,8 +24,12 @@ module.exports = function block (options) {
             initBinding: function () {
                 binding = pflock(instance.el, data);
                 binding.on('changed', function () {
-                    options.storage.set(options.id, binding.data);
+                    options.storage.set(instance.getId(), binding.data);
                 });
+            },
+
+            getId: function () {
+                return options.id || instance.el.getAttribute('x-id');
             },
 
             getTemplate: function () {
@@ -34,7 +40,7 @@ module.exports = function block (options) {
                     }
                     templateName = options.template;
                 } else {
-                    templateName = instance.el.getAttribute('x-template').value;
+                    templateName = instance.el.getAttribute('x-template');
                 }
                 return options.templates[templateName];
             },
@@ -44,6 +50,16 @@ module.exports = function block (options) {
                 instance.el.innerHTML = template(data);
                 instance.emit('rendered');
                 instance.initBinding();
+
+                var subBlocks = instance.el.querySelectorAll('[x-template]');
+                each(subBlocks, function (subBlock) {
+                    block({
+                        el:        subBlock,
+                        storage:   options.storage,
+                        templates: options.templates
+                    });
+                });
+
             }
         };
 

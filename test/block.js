@@ -82,6 +82,50 @@ describe('block', function () {
         title.value = 'changed';
         triggerEvent(title, 'input');
     });
+
+    it('should render subviews', function (done) {
+
+        var template = parker.compile('<input x-bind="value:title" class="title" />' +
+                '{has subview ' +
+                    '<div class="subview" x-template="template" x-id="{. subview}"></div>' +
+                '}'),
+
+            data = {
+                '1': {
+                    title:  'title-1',
+                    subview: '2'
+                },
+                '2': {
+                    title: 'title-2'
+                }
+            },
+
+            storage = {
+                get: function (id, fn) {
+                    fn(null, data[id]);
+                },
+                set: function (id, obj, fn) {
+                    data[id] = obj;
+                    if (fn) { fn(null); }
+                    done();
+                }
+            },
+
+            instance = content.block({
+                id:       '1',
+                storage:  storage,
+                templates: {
+                    template: template
+                },
+                template: 'template'
+            });
+
+        document.body.appendChild(instance.el);
+        var title = instance.el.querySelector('.subview .title');
+        title.value.should.equal('title-2');
+
+        triggerEvent(title, 'input');
+    });
 });
 
 
