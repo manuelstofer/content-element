@@ -1,4 +1,4 @@
-var content = require('content'),
+var content = require('content-element'),
     parker  = require('manuelstofer-richardparker');
 expect = chai.expect;
 

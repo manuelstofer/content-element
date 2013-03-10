@@ -10,12 +10,18 @@ module.exports = function block (options) {
             el: options.el,
 
             initialize: function () {
-                options.storage.get(instance.getId(), instance.setContent);
+                options.storage.get(instance.getId(), function (notification) {
+                    instance.setContent(notification);
+                    return function (notification) {
+                        console.log('foo');
+                       binding.toDocument(notification.data);
+                    };
+                });
             },
 
-            setContent: function (err, received) {
-                data = received;
-                if (err) {
+            setContent: function (notification) {
+                data = notification.data;
+                if (notification.action == 'error') {
                     throw new Error('failed to fetch content for: ' + instance.getId());
                 }
                 instance.render();
@@ -24,7 +30,7 @@ module.exports = function block (options) {
             initBinding: function () {
                 binding = pflock(instance.el, data);
                 binding.on('changed', function () {
-                    options.storage.set(instance.getId(), binding.data);
+                    options.storage.put(binding.data);
                 });
             },
 
