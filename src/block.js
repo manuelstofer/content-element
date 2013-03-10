@@ -13,8 +13,7 @@ module.exports = function block (options) {
                 options.storage.get(instance.getId(), function (notification) {
                     instance.setContent(notification);
                     return function (notification) {
-                        console.log('foo');
-                       binding.toDocument(notification.data);
+                        binding.toDocument(notification.data);
                     };
                 });
             },
