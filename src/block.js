@@ -2,23 +2,37 @@
 var view    = require('koboldmaki'),
     pflock  = require('pflock'),
     each    = require('each'),
-    loader  = require('loader');
+
+    defaults = {
+        plugins: [
+            require('./plugins/remove')
+        ]
+    };
 
 module.exports = function block (options) {
     var data = {},
         binding,
+        plugins = defaults.plugins || options.plugins,
+
         instance = {
             el: options.el,
 
             initialize: function () {
+                instance.initializePlugins();
                 instance.el.contentBlockInitialize = true;
-                instance.el.isContentBlock;
                 options.storage.get(instance.getId(), function (notification) {
                     instance.setContent(notification);
                     return function (notification) {
                         binding.toDocument(notification.data);
                         instance.initSubElements();
                     };
+                });
+
+            },
+
+            initializePlugins: function () {
+                each(plugins, function (plugin) {
+                    plugin(instance, options);
                 });
             },
 
@@ -33,7 +47,6 @@ module.exports = function block (options) {
             initBinding: function () {
                 binding = pflock(instance.el, data);
                 binding.on('changed', function () {
-                    loader();
                     options.storage.put(binding.data);
                 });
             },
@@ -58,9 +71,8 @@ module.exports = function block (options) {
             render: function () {
                 var template = instance.getTemplate();
                 instance.el.innerHTML = template(data);
-                loader();
-                instance.emit('rendered');
                 instance.initBinding();
+                instance.emit('rendered');
                 instance.initSubElements();
             },
 
@@ -73,8 +85,6 @@ module.exports = function block (options) {
                             storage:   options.storage,
                             templates: options.templates
                         });
-                    } else {
-
                     }
                 });
             }

@@ -8,11 +8,12 @@
     "manuelstofer/pflock": "*",
     "manuelstofer/koboldmaki": "*",
     "manuelstofer/richardparker": "*",
-    "manuelstofer/loader": "*"
+    "component/event": "*"
   },
   "development": {},
   "scripts": [
     "index.js",
-    "src/block.js"
+    "src/block.js",
+    "src/plugins/remove.js"
   ]
 }
