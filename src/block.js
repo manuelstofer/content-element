@@ -1,7 +1,8 @@
 'use strict';
 var view    = require('koboldmaki'),
     pflock  = require('pflock'),
-    each    = require('each');
+    each    = require('each'),
+    loader  = require('loader');
 
 module.exports = function block (options) {
     var data = {},
@@ -10,10 +11,13 @@ module.exports = function block (options) {
             el: options.el,
 
             initialize: function () {
+                instance.el.contentBlockInitialize = true;
+                instance.el.isContentBlock;
                 options.storage.get(instance.getId(), function (notification) {
                     instance.setContent(notification);
                     return function (notification) {
                         binding.toDocument(notification.data);
+                        instance.initSubElements();
                     };
                 });
             },
@@ -29,6 +33,7 @@ module.exports = function block (options) {
             initBinding: function () {
                 binding = pflock(instance.el, data);
                 binding.on('changed', function () {
+                    loader();
                     options.storage.put(binding.data);
                 });
             },
@@ -53,18 +58,25 @@ module.exports = function block (options) {
             render: function () {
                 var template = instance.getTemplate();
                 instance.el.innerHTML = template(data);
+                loader();
                 instance.emit('rendered');
                 instance.initBinding();
+                instance.initSubElements();
+            },
 
+            initSubElements: function () {
                 var subBlocks = instance.el.querySelectorAll('[x-template]');
                 each(subBlocks, function (subBlock) {
-                    block({
-                        el:        subBlock,
-                        storage:   options.storage,
-                        templates: options.templates
-                    });
-                });
+                    if (!subBlock.contentBlockInitialized) {
+                        block({
+                            el:        subBlock,
+                            storage:   options.storage,
+                            templates: options.templates
+                        });
+                    } else {
 
+                    }
+                });
             }
         };
 
