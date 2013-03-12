@@ -1,3 +1,5 @@
+all: install build
+
 install:
 	@npm install
 
