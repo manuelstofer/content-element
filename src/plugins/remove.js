@@ -4,19 +4,20 @@ var each = require('each'),
 module.exports = function (instance, options) {
 
     instance.on('rendered', function () {
-        instance.el.querySelectorAll('[x-remove]');
-        event.bind(instance.el, 'click', function (e) {
-            var parent = instance.el.parentNode;
-            
-            options.storage.del(instance.getId(), function (notification) {
-
-                if (notification.action == 'del') {
-                    parent.removeChild(instance.el);
-                    triggerEvent(parent, 'read');
-                }
+        var removeElements = instance.el.querySelectorAll('[x-remove]');
+        each(removeElements, function (removeElement) {
+            event.bind(removeElement, 'click', function (e) {
+                options.storage.del(instance.getId());
+                e.stopPropagation();
             });
-            e.stopPropagation();
         });
+    });
+
+    instance.on('del', function () {
+        var parent = instance.el.parentNode;
+        parent.removeChild(instance.el);
+
+        triggerEvent(parent, 'read');
     });
 };
 
