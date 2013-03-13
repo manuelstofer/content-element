@@ -23,11 +23,13 @@ module.exports = function block (options) {
                 options.storage.get(instance.getId(), function (notification) {
                     instance.setContent(notification);
                     return function (notification) {
-                        binding.toDocument(notification.data);
-                        instance.initSubElements();
+                        if (notification.action === 'change') {
+                            binding.toDocument(notification.data);
+                            instance.initSubElements();
+                        }
+                        instance.emit(notification.action, notification.data);
                     };
                 });
-
             },
 
             initializePlugins: function () {

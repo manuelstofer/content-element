@@ -1,31 +1,7 @@
 var content = require('content-element'),
-    parker  = require('manuelstofer-richardparker');
+    parker  = require('manuelstofer-richardparker'),
+    storage = require('manuelstofer-storage');
 expect = chai.expect;
-
-function storageMock (data) {
-    return {
-        get: function (id, fn) {
-            fn({
-                data: data[id]
-            });
-        },
-        put: function (obj, fn) {
-            data[obj.id] = obj;
-            if (fn) { fn({data: obj}); }
-        },
-
-        del: function (obj, fn) {
-            delete data[obj.id];
-            if (fn) {
-                fn({
-                    action: 'del',
-                    id: obj.id
-                });
-            }
-        }
-
-    };
-}
 
 describe('block', function () {
 
@@ -41,7 +17,7 @@ describe('block', function () {
                 '</div>'
             ),
 
-            storage = {
+            client = {
                 get: function  (id, fn) {
                     fn({
                         action: '',
@@ -57,7 +33,7 @@ describe('block', function () {
 
             instance = content.block({
                 id:       '0-0-0',
-                storage:  storage,
+                storage:  client,
                 template: template
             });
 
@@ -81,29 +57,33 @@ describe('block', function () {
                 }
             },
 
-            storage = storageMock(data),
+            client = storage.mock({data: data}),
 
             instance = content.block({
                 id:       '1',
-                storage:  storage,
+                storage:  client,
                 templates: {
                     example: template
                 },
                 template: 'example'
-            }),
-            title = instance.el.querySelector('#title');
+            });
 
-        document.body.appendChild(instance.el);
-        title.value.should.equal('title');
-        title.value = 'changed';
-        triggerEvent(title, 'input');
+        // @todo get rid of ugly setTimeout
+        setTimeout(function () {
+            var title = instance.el.querySelector('#title');
+            document.body.appendChild(instance.el);
+            title.value.should.equal('title');
+            title.value = 'changed';
+            triggerEvent(title, 'input');
 
-        storage.get(1, function (notification) {
+            client.get(1, function (notification) {
 
-            notification.data.id.should.equal(1);
-            notification.data.title.should.equal('changed');
-            done();
-        });
+                notification.data.id.should.equal(1);
+                notification.data.title.should.equal('changed');
+                done();
+            });
+        }, 20);
+
     });
 
     it('should render subviews', function (done) {
@@ -125,19 +105,22 @@ describe('block', function () {
 
             instance = content.block({
                 id:       '1',
-                storage:  storageMock(data),
+                storage:  storage.mock({data: data}),
                 templates: {
                     template: template
                 },
                 template: 'template'
             });
 
-        document.body.appendChild(instance.el);
-        var title = instance.el.querySelector('.subview .title');
-        title.value.should.equal('title-2');
+        setTimeout(function () {
+            document.body.appendChild(instance.el);
+            var title = instance.el.querySelector('.subview .title');
+            title.value.should.equal('title-2');
 
-        triggerEvent(title, 'input');
-        done();
+            triggerEvent(title, 'input');
+            done();
+        }, 50);
+
     });
 
 
@@ -149,7 +132,7 @@ describe('block', function () {
                 '</ul>'
             ),
 
-            item = parker.compile('<span x-bind="text"></span> <span x-delete>delete</span>'),
+            item = parker.compile('<span x-bind="text"></span> <span x-remove>remove</span>'),
 
 
             data = {
@@ -164,11 +147,11 @@ describe('block', function () {
                 }
             },
 
-            storage = storageMock(data),
+            client = storage.mock({data: data}),
 
             instance = content.block({
                 id:       '1',
-                storage:  storage,
+                storage:  client,
                 template: 'list',
                 templates: {
                     list: list,
@@ -179,13 +162,15 @@ describe('block', function () {
         document.body.appendChild(instance.el);
 
 
-        var deleteNode = instance.el.querySelectorAll('[x-delete]')[1]
-        triggerEvent(deleteNode, 'click');
+        setTimeout(function () {
+            var removeNode = instance.el.querySelectorAll('[x-remove]')[1]
+            triggerEvent(removeNode, 'click');
 
-        storage.get(1, function (notification) {
-            notification.data.list.length.should.equal(1);
-            notification.data.list[0].should.equal(2);
-        });
+            client.get(1, function (notification) {
+                notification.data.list.length.should.equal(1);
+                notification.data.list[0].should.equal(2);
+            });
+        }, 50);
 
     });
 });
