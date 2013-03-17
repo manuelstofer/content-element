@@ -23,6 +23,7 @@ describe('ContentElement', function () {
                         action: '',
                         data: {
                             id:      '0-0-0',
+                            type:    'example',
                             title:   'title',
                             content: 'lorem ipsum dolor',
                             tags:    ['a', 'b', 'c']
@@ -34,7 +35,9 @@ describe('ContentElement', function () {
             instance = content.ContentElement({
                 id:       '0-0-0',
                 storage:  client,
-                template: template
+                templates: {
+                    "example.html": template
+                }
             });
 
         document.body.appendChild(instance.el);
@@ -52,6 +55,7 @@ describe('ContentElement', function () {
 
             data = {
                 '1': {
+                    type: 'example',
                     id: 1,
                     title: 'title'
                 }
@@ -63,9 +67,8 @@ describe('ContentElement', function () {
                 id:       '1',
                 storage:  client,
                 templates: {
-                    example: template
-                },
-                template: 'example'
+                    "example.html": template
+                }
             });
 
         // @todo get rid of ugly setTimeout
@@ -95,10 +98,12 @@ describe('ContentElement', function () {
 
             data = {
                 '1': {
+                    type:   'example',
                     title:  'title-1',
                     subview: '2'
                 },
                 '2': {
+                    type:   'example',
                     title: 'title-2'
                 }
             },
@@ -107,9 +112,8 @@ describe('ContentElement', function () {
                 id:       '1',
                 storage:  storage.mock({data: data}),
                 templates: {
-                    template: template
-                },
-                template: 'template'
+                    "example.html": template
+                }
             });
 
         setTimeout(function () {
@@ -137,12 +141,15 @@ describe('ContentElement', function () {
 
             data = {
                 '1': {
+                    type: 'list',
                     list: [2, 3]
                 },
                 '2': {
+                    type: 'item',
                     text: 'text-2'
                 },
                 '3': {
+                    type: 'item',
                     text: 'text-3'
                 }
             },
@@ -152,10 +159,9 @@ describe('ContentElement', function () {
             instance = content.ContentElement({
                 id:       '1',
                 storage:  client,
-                template: 'list',
                 templates: {
-                    list: list,
-                    item: item
+                    "list.html": list,
+                    "item.html": item
                 }
             });
 
