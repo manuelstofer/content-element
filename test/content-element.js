@@ -3,7 +3,7 @@ var content = require('content-element'),
     storage = require('manuelstofer-storage');
 expect = chai.expect;
 
-describe('block', function () {
+describe('ContentElement', function () {
 
     it('should render data to the dom', function () {
 
@@ -31,7 +31,7 @@ describe('block', function () {
                 }
             },
 
-            instance = content.block({
+            instance = content.ContentElement({
                 id:       '0-0-0',
                 storage:  client,
                 template: template
@@ -59,7 +59,7 @@ describe('block', function () {
 
             client = storage.mock({data: data}),
 
-            instance = content.block({
+            instance = content.ContentElement({
                 id:       '1',
                 storage:  client,
                 templates: {
@@ -103,7 +103,7 @@ describe('block', function () {
                 }
             },
 
-            instance = content.block({
+            instance = content.ContentElement({
                 id:       '1',
                 storage:  storage.mock({data: data}),
                 templates: {
@@ -124,7 +124,7 @@ describe('block', function () {
     });
 
 
-    it('click on remove should remove items', function () {
+    it('click on x-remove should remove items', function (done) {
 
         var list = parker.compile(
                 '<ul x-each="list">' +
@@ -149,7 +149,7 @@ describe('block', function () {
 
             client = storage.mock({data: data}),
 
-            instance = content.block({
+            instance = content.ContentElement({
                 id:       '1',
                 storage:  client,
                 template: 'list',
@@ -163,12 +163,14 @@ describe('block', function () {
 
 
         setTimeout(function () {
+
             var removeNode = instance.el.querySelectorAll('[x-remove]')[1]
             triggerEvent(removeNode, 'click');
 
             client.get(1, function (notification) {
                 notification.data.list.length.should.equal(1);
-                notification.data.list[0].should.equal(2);
+                notification.data.list[0].should.equal("2");
+                done();
             });
         }, 50);
 

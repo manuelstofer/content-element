@@ -1,3 +1,3 @@
 module.exports = {
-    block:      require('./src/block')
+    ContentElement:      require('./src/content-element')
 };

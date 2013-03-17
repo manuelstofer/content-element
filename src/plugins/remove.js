@@ -15,9 +15,10 @@ module.exports = function (instance, options) {
 
     instance.on('del', function () {
         var parent = instance.el.parentNode;
-        parent.removeChild(instance.el);
-
-        triggerEvent(parent, 'read');
+        if (parent) {
+            parent.removeChild(instance.el);
+            triggerEvent(parent, 'read');
+        }
     });
 };
 

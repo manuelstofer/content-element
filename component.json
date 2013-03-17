@@ -14,7 +14,7 @@
   "development": {},
   "scripts": [
     "index.js",
-    "src/block.js",
+    "src/content-element.js",
     "src/plugins/remove.js"
   ]
 }
