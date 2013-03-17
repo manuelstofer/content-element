@@ -15,6 +15,14 @@
   "scripts": [
     "index.js",
     "src/content-element.js",
-    "src/plugins/remove.js"
+    "src/plugins/x-remove.js",
+    "src/plugins/x-collection.js",
+    "src/plugins/toolbar.js",
+    "src/plugins/edit.js"
+  ],
+  "images": [
+    "resources/add.svg",
+    "resources/remove.svg",
+    "resources/edit.svg"
   ]
 }
