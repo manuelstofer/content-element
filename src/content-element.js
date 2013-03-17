@@ -12,6 +12,7 @@ var view    = require('koboldmaki'),
 module.exports = function ContentElement (options) {
     var binding,
         plugins = defaults.plugins || options.plugins,
+        data,
 
         instance = {
             el: options.el,
@@ -29,6 +30,7 @@ module.exports = function ContentElement (options) {
                         }
                         throw new Error('failed to fetch content for: ' + instance.getId());
                     }
+                    data = notification.data;
                     instance.render(notification.data);
                     return instance.update;
                 });
@@ -63,17 +65,27 @@ module.exports = function ContentElement (options) {
                 return options.id || instance.el.getAttribute('x-id');
             },
 
-            getTemplate: function () {
-                var templateName;
-                if (options.template) {
-                    if (typeof options.template === 'function') {
-                        return options.template;
+            getContext: function () {
+                var el = instance.el;
+                while (el.parentNode) {
+                    var context = el.getAttribute('x-context');
+                    if (context) {
+                        return context;
                     }
-                    templateName = options.template;
-                } else {
-                    templateName = instance.el.getAttribute('x-template');
+                    el = el.parentNode;
                 }
-                return options.templates[templateName];
+            },
+
+            getTemplate: function () {
+                var context = instance.getContext(),
+                    templateName = data.type + '.html',
+                    contextTemplate = options.templates[context + '/' + templateName],
+                    template = contextTemplate || options.templates[templateName];
+
+                if (!template) {
+                    throw new Error('No template found for type: ' + data.type);
+                }
+                return template;
             },
 
             render: function (data) {
@@ -85,7 +97,7 @@ module.exports = function ContentElement (options) {
             },
 
             initSubElements: function () {
-                var subElements = instance.el.querySelectorAll('[x-template]');
+                var subElements = instance.el.querySelectorAll('[x-id]');
                 each(subElements, function (subelement) {
 
                     var subElementId = subelement.getAttribute('x-id');
