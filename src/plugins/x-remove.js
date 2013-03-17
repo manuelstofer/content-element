@@ -3,7 +3,7 @@ var each = require('each'),
 
 module.exports = function (instance, options) {
 
-    instance.on('rendered', function () {
+    instance.on('bound', function () {
         var removeElements = instance.el.querySelectorAll('[x-remove]');
         each(removeElements, function (removeElement) {
             event.bind(removeElement, 'click', function (e) {

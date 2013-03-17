@@ -2,17 +2,20 @@
 var view    = require('koboldmaki'),
     pflock  = require('pflock'),
     each    = require('each'),
+    toolbar = require('toolbar'),
 
     defaults = {
         plugins: [
-            require('./plugins/remove')
+            require('./plugins/x-remove'),
+            require('./plugins/x-collection'),
+            require('./plugins/edit'),
+            require('./plugins/toolbar')
         ]
     };
 
 module.exports = function ContentElement (options) {
     var binding,
         plugins = defaults.plugins || options.plugins,
-        data,
 
         instance = {
             el: options.el,
@@ -30,15 +33,17 @@ module.exports = function ContentElement (options) {
                         }
                         throw new Error('failed to fetch content for: ' + instance.getId());
                     }
-                    data = notification.data;
+                    instance.data = notification.data;
                     instance.render(notification.data);
                     return instance.update;
                 });
+
             },
 
             update: function (notification) {
                 if (notification.action === 'change') {
                     binding.toDocument(notification.data);
+                    instance.data = notification.data;
                     instance.initSubElements();
                 }
                 instance.emit(notification.action, notification.data);
@@ -78,12 +83,12 @@ module.exports = function ContentElement (options) {
 
             getTemplate: function () {
                 var context = instance.getContext(),
-                    templateName = data.type + '.html',
+                    templateName = instance.data.type + '.html',
                     contextTemplate = options.templates[context + '/' + templateName],
                     template = contextTemplate || options.templates[templateName];
 
                 if (!template) {
-                    throw new Error('No template found for type: ' + data.type);
+                    throw new Error('No template found for type: ' + instance.data.type);
                 }
                 return template;
             },
@@ -91,13 +96,18 @@ module.exports = function ContentElement (options) {
             render: function (data) {
                 var template = instance.getTemplate();
                 instance.el.innerHTML = template(data);
-                instance.initBinding(data);
                 instance.emit('rendered');
+
+                instance.initBinding(data);
+                instance.emit('bound');
+
                 instance.initSubElements();
+                instance.emit('initialized');
             },
 
             initSubElements: function () {
                 var subElements = instance.el.querySelectorAll('[x-id]');
+
                 each(subElements, function (subelement) {
 
                     var subElementId = subelement.getAttribute('x-id');
@@ -118,6 +128,8 @@ module.exports = function ContentElement (options) {
                     storage:   options.storage,
                     templates: options.templates
                 });
+
+                instance.emit('init-subelement', subelement);
             }
         };
 
