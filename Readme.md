@@ -1,5 +1,6 @@
-# component-travis-mocha-phantomjs-chai
+# Content Element
 
-test setup for components with travis support
+Experimental realtime content editing
 
-![Build status](https://api.travis-ci.org/manuelstofer/component-travis-mocha-phantomjs-chai.png)
+![Build status](https://api.travis-ci.org/manuelstofer/content-element.png)
+
