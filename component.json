@@ -8,7 +8,7 @@
     "manuelstofer/pflock": "*",
     "manuelstofer/koboldmaki": "*",
     "manuelstofer/richardparker": "*",
-    "manuelstofer/storage": "*",
+    "manuelstofer/repo": "*",
     "manuelstofer/toolbar": "*",
     "component/event": "*",
     "component/dialog": "*"

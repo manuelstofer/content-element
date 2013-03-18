@@ -1,6 +1,6 @@
 var content = require('content-element'),
     parker  = require('manuelstofer-richardparker'),
-    storage = require('manuelstofer-storage');
+    storage = require('manuelstofer-repo');
 expect = chai.expect;
 
 describe('ContentElement', function () {
