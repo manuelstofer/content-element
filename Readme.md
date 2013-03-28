@@ -1,6 +1,7 @@
 # Content Element
 
-Experimental realtime content editing
+Experimental real-time content editing
 
-![Build status](https://api.travis-ci.org/manuelstofer/content-element.png)
+[![Build Status](https://travis-ci.org/manuelstofer/content-element.png?branch=master)](https://travis-ci.org/manuelstofer/content-element)
+
 
