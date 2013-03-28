@@ -17,20 +17,16 @@ describe('ContentElement', function () {
                 '</div>'
             ),
 
-            client = {
-                get: function  (id, fn) {
-                    fn({
-                        action: '',
-                        data: {
-                            id:      '0-0-0',
-                            type:    'example',
-                            title:   'title',
-                            content: 'lorem ipsum dolor',
-                            tags:    ['a', 'b', 'c']
-                        }
-                    });
+            data = {
+                '0-0-0': {
+                    type:    'example',
+                    title:   'title',
+                    content: 'lorem ipsum dolor',
+                    tags:    ['a', 'b', 'c']
                 }
             },
+
+            client = storage.mock({data: data}),
 
             instance = content.ContentElement({
                 id:       '0-0-0',
@@ -40,13 +36,16 @@ describe('ContentElement', function () {
                 }
             });
 
+
+
         document.body.appendChild(instance.el);
+        instance.on('initialized', function () {
+            document.getElementById('title').innerHTML.should.equal('title');
+            document.getElementById('tags').children.length.should.equal(3);
+            document.getElementById('content').innerHTML.should.equal('lorem ipsum dolor');
 
-        document.getElementById('title').innerHTML.should.equal('title');
-        document.getElementById('tags').children.length.should.equal(3);
-        document.getElementById('content').innerHTML.should.equal('lorem ipsum dolor');
-
-        document.body.removeChild(instance.el);
+            document.body.removeChild(instance.el);
+        });
     });
 
     it('should update the data in the storage', function (done) {
@@ -56,7 +55,6 @@ describe('ContentElement', function () {
             data = {
                 '1': {
                     type: 'example',
-                    id: 1,
                     title: 'title'
                 }
             },
@@ -71,22 +69,22 @@ describe('ContentElement', function () {
                 }
             });
 
-        // @todo get rid of ugly setTimeout
-        setTimeout(function () {
+        instance.on('initialized', function () {
+
             var title = instance.el.querySelector('#title');
             document.body.appendChild(instance.el);
             title.value.should.equal('title');
             title.value = 'changed';
             triggerEvent(title, 'input');
 
-            client.get(1, function (notification) {
-
-                notification.data.id.should.equal(1);
-                notification.data.title.should.equal('changed');
-                done();
+            instance.on('saved', function () {
+                client.get(1, function (notification) {
+                    notification.data._id.should.equal('1');
+                    notification.data.title.should.equal('changed');
+                    done();
+                });
             });
-        }, 20);
-
+        });
     });
 
     it('should render subviews', function (done) {
@@ -116,14 +114,14 @@ describe('ContentElement', function () {
                 }
             });
 
-        setTimeout(function () {
+        instance.on('initialized', function () {
             document.body.appendChild(instance.el);
             var title = instance.el.querySelector('.subview .title');
             title.value.should.equal('title-2');
 
             triggerEvent(title, 'input');
             done();
-        }, 50);
+        });
 
     });
 
@@ -167,19 +165,15 @@ describe('ContentElement', function () {
 
         document.body.appendChild(instance.el);
 
-
-        setTimeout(function () {
-
-            var removeNode = instance.el.querySelectorAll('[x-remove]')[1]
+        instance.on('initialized', function () {
+            var removeNode = instance.el.querySelectorAll('[x-remove]')[1];
             triggerEvent(removeNode, 'click');
-
             client.get(1, function (notification) {
                 notification.data.list.length.should.equal(1);
-                notification.data.list[0].should.equal("2");
+                notification.data.list[0].should.equal('2');
                 done();
             });
-        }, 50);
-
+        })
     });
 });
 

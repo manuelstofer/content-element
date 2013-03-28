@@ -1,5 +1,5 @@
 'use strict';
-var each    = require('each'),
+var each    = require('foreach'),
     event   = require('event'),
     toolbar = require('toolbar');
 
@@ -35,15 +35,13 @@ module.exports = function (instance, options) {
                 position: 'left',
                 icons: {
                     "build/manuelstofer-content-element/resources/add.svg":  function () {
-                        console.log('add');
                         var contains = collection.getAttribute('x-contains'),
-                            element = {
+                            newElement = {
                                 type: contains
                             };
-                        options.storage.put(element, function (notification) {
-
+                        options.storage.put(newElement, function (notification) {
                             var childNode = getChildTemplateNode(collection)
-                            childNode.setAttribute('x-id', notification.id);
+                            childNode.setAttribute('x-id', notification.data._id);
                             collection.appendChild(childNode);
                             triggerEvent(childNode, 'read');
                         });

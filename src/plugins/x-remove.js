@@ -1,4 +1,4 @@
-var each = require('each'),
+var each = require('foreach'),
     event = require('event');
 
 module.exports = function (instance, options) {

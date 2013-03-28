@@ -1,7 +1,7 @@
 'use strict';
 var view    = require('koboldmaki'),
     pflock  = require('pflock'),
-    each    = require('each'),
+    each    = require('foreach'),
     toolbar = require('toolbar'),
 
     defaults = {
@@ -16,6 +16,7 @@ var view    = require('koboldmaki'),
 module.exports = function ContentElement (options) {
     var binding,
         plugins = defaults.plugins || options.plugins,
+        initialized = false,
 
         instance = {
             el: options.el,
@@ -26,7 +27,7 @@ module.exports = function ContentElement (options) {
 
                 options.storage.get(instance.getId(), function (notification) {
 
-                    if (notification.action === 'error') {
+                    if (notification.event === 'error') {
                         if (notification.error === 'not-found') {
                             instance.unload();
                             return;
@@ -41,12 +42,12 @@ module.exports = function ContentElement (options) {
             },
 
             update: function (notification) {
-                if (notification.action === 'change') {
+                if (notification.event === 'change') {
                     binding.toDocument(notification.data);
                     instance.data = notification.data;
                     instance.initSubElements();
                 }
-                instance.emit(notification.action, notification.data);
+                instance.emit(notification.event, notification.data);
             },
 
             unload: function () {
@@ -62,7 +63,9 @@ module.exports = function ContentElement (options) {
             initBinding: function (data) {
                 binding = pflock(instance.el, data);
                 binding.on('changed', function () {
-                    options.storage.put(binding.data);
+                    options.storage.put(binding.data, function (not) {
+                        instance.emit('saved');
+                    });
                 });
             },
 
@@ -102,17 +105,32 @@ module.exports = function ContentElement (options) {
                 instance.emit('bound');
 
                 instance.initSubElements();
-                instance.emit('initialized');
             },
 
             initSubElements: function () {
-                var subElements = instance.el.querySelectorAll('[x-id]');
+                var subElements = instance.el.querySelectorAll('[x-id]'),
+                    subElementsToInitialize = subElements.length,
+
+                    checkReady = function () {
+                        if (subElementsToInitialize === 0 && !initialized) {
+                            initialized = true;
+                            instance.emit('initialized');
+                        }
+                    };
+
+                checkReady();
 
                 each(subElements, function (subelement) {
 
                     var subElementId = subelement.getAttribute('x-id');
                     if (subElementId !== subelement.contentElementId) {
-                        instance.initSubElement(subelement);
+                        var subElement = instance.initSubElement(subelement);
+
+                        subElement.on('initialized', function () {
+                            subElementsToInitialize--;
+
+                            checkReady();
+                        });
                     }
                 });
             },
@@ -123,13 +141,14 @@ module.exports = function ContentElement (options) {
                 subelement.parentNode.removeChild(subelement);
                 subelement = clone;
 
-                ContentElement({
+                var subEl = ContentElement({
                     el:        subelement,
                     storage:   options.storage,
                     templates: options.templates
                 });
 
                 instance.emit('init-subelement', subelement);
+                return subEl;
             }
         };
 
