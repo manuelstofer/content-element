@@ -5,7 +5,7 @@ expect = chai.expect;
 
 describe('ContentElement', function () {
 
-    it('should render data to the dom', function () {
+    it('should render document to the dom', function () {
 
         var template = parker.compile(
                 '<div class="">' +
@@ -17,7 +17,7 @@ describe('ContentElement', function () {
                 '</div>'
             ),
 
-            data = {
+            docs = {
                 '0-0-0': {
                     type:    'example',
                     title:   'title',
@@ -26,7 +26,7 @@ describe('ContentElement', function () {
                 }
             },
 
-            client = storage.mock({data: data}),
+            client = storage.mock({docs: docs}),
 
             instance = content.ContentElement({
                 id:       '0-0-0',
@@ -48,18 +48,18 @@ describe('ContentElement', function () {
         });
     });
 
-    it('should update the data in the storage', function (done) {
+    it('should update the document in the storage', function (done) {
 
         var template = parker.compile('<input x-bind="value:title" id="title" />'),
 
-            data = {
+            docs = {
                 '1': {
                     type: 'example',
                     title: 'title'
                 }
             },
 
-            client = storage.mock({data: data}),
+            client = storage.mock({docs: docs}),
 
             instance = content.ContentElement({
                 id:       '1',
@@ -79,8 +79,8 @@ describe('ContentElement', function () {
 
             instance.on('saved', function () {
                 client.get(1, function (notification) {
-                    notification.data._id.should.equal('1');
-                    notification.data.title.should.equal('changed');
+                    notification.doc._id.should.equal('1');
+                    notification.doc.title.should.equal('changed');
                     done();
                 });
             });
@@ -94,7 +94,7 @@ describe('ContentElement', function () {
                     '<div class="subview" x-template="template" x-id="{. subview}"></div>' +
                 '}'),
 
-            data = {
+            docs = {
                 '1': {
                     type:   'example',
                     title:  'title-1',
@@ -108,7 +108,7 @@ describe('ContentElement', function () {
 
             instance = content.ContentElement({
                 id:       '1',
-                storage:  storage.mock({data: data}),
+                storage:  storage.mock({docs: docs}),
                 templates: {
                     "example.html": template
                 }
@@ -137,7 +137,7 @@ describe('ContentElement', function () {
             item = parker.compile('<span x-bind="text"></span> <span x-remove>remove</span>'),
 
 
-            data = {
+            docs = {
                 '1': {
                     type: 'list',
                     list: [2, 3]
@@ -152,7 +152,7 @@ describe('ContentElement', function () {
                 }
             },
 
-            client = storage.mock({data: data}),
+            client = storage.mock({docs: docs}),
 
             instance = content.ContentElement({
                 id:       '1',
@@ -169,8 +169,8 @@ describe('ContentElement', function () {
             var removeNode = instance.el.querySelectorAll('[x-remove]')[1];
             triggerEvent(removeNode, 'click');
             client.get(1, function (notification) {
-                notification.data.list.length.should.equal(1);
-                notification.data.list[0].should.equal('2');
+                notification.doc.list.length.should.equal(1);
+                notification.doc.list[0].should.equal('2');
                 done();
             });
         })

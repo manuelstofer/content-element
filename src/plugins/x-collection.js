@@ -41,7 +41,7 @@ module.exports = function (instance, options) {
                             };
                         options.storage.put(newElement, function (notification) {
                             var childNode = getChildTemplateNode(collection)
-                            childNode.setAttribute('x-id', notification.data._id);
+                            childNode.setAttribute('x-id', notification.doc._id);
                             collection.appendChild(childNode);
                             triggerEvent(childNode, 'read');
                         });

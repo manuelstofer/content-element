@@ -34,8 +34,8 @@ module.exports = function ContentElement (options) {
                         }
                         throw new Error('failed to fetch content for: ' + instance.getId());
                     }
-                    instance.data = notification.data;
-                    instance.render(notification.data);
+                    instance.doc = notification.doc;
+                    instance.render(notification.doc);
                     return instance.update;
                 });
 
@@ -43,11 +43,11 @@ module.exports = function ContentElement (options) {
 
             update: function (notification) {
                 if (notification.event === 'change') {
-                    binding.toDocument(notification.data);
-                    instance.data = notification.data;
+                    binding.toDocument(notification.doc);
+                    instance.doc = notification.doc;
                     instance.initSubElements();
                 }
-                instance.emit(notification.event, notification.data);
+                instance.emit(notification.event, notification.doc);
             },
 
             unload: function () {
@@ -60,8 +60,8 @@ module.exports = function ContentElement (options) {
                 });
             },
 
-            initBinding: function (data) {
-                binding = pflock(instance.el, data);
+            initBinding: function (doc) {
+                binding = pflock(instance.el, doc);
                 binding.on('changed', function () {
                     options.storage.put(binding.data, function (not) {
                         instance.emit('saved');
@@ -86,22 +86,22 @@ module.exports = function ContentElement (options) {
 
             getTemplate: function () {
                 var context = instance.getContext(),
-                    templateName = instance.data.type + '.html',
+                    templateName = instance.doc.type + '.html',
                     contextTemplate = options.templates[context + '/' + templateName],
                     template = contextTemplate || options.templates[templateName];
 
                 if (!template) {
-                    throw new Error('No template found for type: ' + instance.data.type);
+                    throw new Error('No template found for type: ' + instance.doc.type);
                 }
                 return template;
             },
 
-            render: function (data) {
+            render: function (doc) {
                 var template = instance.getTemplate();
-                instance.el.innerHTML = template(data);
+                instance.el.innerHTML = template(doc);
                 instance.emit('rendered');
 
-                instance.initBinding(data);
+                instance.initBinding(doc);
                 instance.emit('bound');
 
                 instance.initSubElements();

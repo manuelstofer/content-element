@@ -16,7 +16,7 @@ module.exports = function (instance, options) {
             options.storage.del(instance.getId());
         };
 
-        if (options.templates['edit/' + instance.data.type + '.html']) {
+        if (options.templates['edit/' + instance.doc.type + '.html']) {
             icons[getIconPath('edit.svg')] = function () {
                 instance.emit('edit');
             };
