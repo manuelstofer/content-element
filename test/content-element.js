@@ -175,6 +175,59 @@ describe('ContentElement', function () {
             });
         })
     });
+
+    it('should be possible do queries using x-query', function (done) {
+
+        var query = parker.compile(
+                '<div x-query=\'{literal {"type": "item"}}\'></div>'
+            ),
+
+            item = parker.compile('<span x-bind="class:example" class=""></span>'),
+
+            docs = {
+                '1': {
+                    type: 'item',
+                    example: 'bla'
+                },
+                'query-element': {
+                    type: 'query'
+                }
+            },
+
+            client = storage.mock({docs: docs}),
+
+            instance = content.ContentElement({
+                id:       'query-element',
+                storage:  client,
+                templates: {
+                    "item.html": item,
+                    "query.html": query
+                }
+            });
+
+        document.body.appendChild(instance.el);
+
+        instance.on('initialized', function () {
+            instance.el.querySelector('.bla').should.be.defined;
+
+            client.put({type: 'item', example: 'added-element'}, function (n) {
+
+                setTimeout(function () {
+                    instance.el.querySelector('.added-element').should.be.defined;
+
+                    client.del('1');
+                    client.del(n.doc._id);
+
+                    setTimeout(function () {
+                        expect(instance.el.querySelector('.bla')).to.be.null
+                        expect(instance.el.querySelector('.added-element')).to.be.null
+
+                        done();
+                    }, 30);
+                }, 30);
+            });
+        });
+    });
 });
 
 

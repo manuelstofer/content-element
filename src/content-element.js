@@ -7,6 +7,7 @@ var view    = require('koboldmaki'),
     defaults = {
         plugins: [
             require('./plugins/x-remove'),
+            require('./plugins/x-query'),
             require('./plugins/x-collection'),
             require('./plugins/edit'),
             require('./plugins/toolbar')
@@ -16,7 +17,11 @@ var view    = require('koboldmaki'),
 module.exports = function ContentElement (options) {
     var binding,
         plugins = defaults.plugins || options.plugins,
+
         initialized = false,
+        deferred = 0,
+
+        parent = options.parent,
 
         instance = {
             el: options.el,
@@ -28,11 +33,19 @@ module.exports = function ContentElement (options) {
                 options.storage.get(instance.getId(), function (notification) {
 
                     if (notification.event === 'error') {
-                        if (notification.error === 'not-found') {
-                            instance.unload();
-                            return;
-                        }
-                        throw new Error('failed to fetch content for: ' + instance.getId());
+
+                        parent.once('initialized', function () {
+                            var parent = instance.el.parentNode;
+                            if (parent) {
+                                parent.removeChild(instance.el);
+                                triggerEvent(parent, 'read');
+                            }
+                        });
+
+                        instance.emit('initialized');
+
+                        console.log('failed to fetch content for: ' + instance.getId());
+                        return;
                     }
                     instance.doc = notification.doc;
                     instance.render(notification.doc);
@@ -51,7 +64,7 @@ module.exports = function ContentElement (options) {
             },
 
             unload: function () {
-                instance.el.parent.removeChild(instance.el);
+                instance.el.parentNode.removeChild(instance.el);
             },
 
             initializePlugins: function () {
@@ -108,49 +121,57 @@ module.exports = function ContentElement (options) {
             },
 
             initSubElements: function () {
-                var subElements = instance.el.querySelectorAll('[x-id]'),
-                    subElementsToInitialize = subElements.length,
-
-                    checkReady = function () {
-                        if (subElementsToInitialize === 0 && !initialized) {
-                            initialized = true;
-                            instance.emit('initialized');
-                        }
-                    };
-
-                checkReady();
-
-                each(subElements, function (subelement) {
-
-                    var subElementId = subelement.getAttribute('x-id');
-                    if (subElementId !== subelement.contentElementId) {
-                        var subElement = instance.initSubElement(subelement);
-
-                        subElement.on('initialized', function () {
-                            subElementsToInitialize--;
-
-                            checkReady();
-                        });
-                    }
-                });
+                var subElements = instance.el.querySelectorAll('[x-id]');
+                each(subElements, instance.initSubElement);
+                instance.checkReady();
             },
 
-            initSubElement: function (subelement) {
-                var clone = subelement.cloneNode(true);
-                subelement.parentNode.insertBefore(clone, subelement);
-                subelement.parentNode.removeChild(subelement);
-                subelement = clone;
+            checkReady: function () {
+                if (deferred === 0 && !initialized) {
+                    initialized = true;
+                    instance.emit('initialized');
+                }
+            },
 
-                var subEl = ContentElement({
-                    el:        subelement,
-                    storage:   options.storage,
-                    templates: options.templates
-                });
+            deferInit: function () {
+                deferred++;
+            },
 
-                instance.emit('init-subelement', subelement);
-                return subEl;
+            progressInit: function () {
+                deferred--;
+                instance.checkReady();
+            },
+
+            initSubElement: function(subelement) {
+                var subElementId = subelement.getAttribute('x-id');
+                if (subElementId !== subelement.contentElementId) {
+
+                    instance.deferInit();
+
+                    var clone = subelement.cloneNode(true);
+                    subelement.parentNode.insertBefore(clone, subelement);
+                    subelement.parentNode.removeChild(subelement);
+                    subelement = clone;
+
+                    var subEl = ContentElement({
+                        id:        subElementId,
+                        el:        subelement,
+                        storage:   options.storage,
+                        templates: options.templates,
+                        parent:    instance
+                    });
+
+                    subEl.on('initialized', instance.progressInit);
+                }
             }
         };
 
     return view(instance);
 };
+
+
+function triggerEvent (element, event) {
+    var evt = document.createEvent('Event');
+    evt.initEvent(event, true, true);
+    element.dispatchEvent(evt);
+}

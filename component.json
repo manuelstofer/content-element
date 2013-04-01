@@ -18,6 +18,7 @@
     "index.js",
     "src/content-element.js",
     "src/plugins/x-remove.js",
+    "src/plugins/x-query.js",
     "src/plugins/x-collection.js",
     "src/plugins/toolbar.js",
     "src/plugins/edit.js"
