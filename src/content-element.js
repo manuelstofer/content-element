@@ -64,7 +64,9 @@ module.exports = function ContentElement (options) {
             },
 
             unload: function () {
-                instance.el.parentNode.removeChild(instance.el);
+                if (instance.el.parentNode) {
+                    instance.el.parentNode.removeChild(instance.el);
+                }
             },
 
             initializePlugins: function () {
