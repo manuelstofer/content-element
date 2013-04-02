@@ -21,6 +21,8 @@ module.exports = function ContentElement (options) {
         initialized = false,
         deferred = 0,
 
+        storageOperations = 0,
+
         parent = options.parent,
 
         instance = {
@@ -56,9 +58,11 @@ module.exports = function ContentElement (options) {
 
             update: function (notification) {
                 if (notification.event === 'change') {
-                    binding.toDocument(notification.doc);
-                    instance.doc = notification.doc;
-                    instance.initSubElements();
+                    if (storageOperations === 0) {
+                        binding.toDocument(notification.doc);
+                        instance.doc = notification.doc;
+                        instance.initSubElements();
+                    }
                 }
                 instance.emit(notification.event, notification.doc);
             },
@@ -75,10 +79,23 @@ module.exports = function ContentElement (options) {
                 });
             },
 
+
+            addStorageOp: function () {
+                storageOperations++;
+            },
+
+            completeStorageOp: function () {
+                storageOperations--;
+            },
+
             initBinding: function (doc) {
                 binding = pflock(instance.el, doc);
                 binding.on('changed', function () {
-                    options.storage.put(binding.data, function (not) {
+
+                    instance.addStorageOp();
+                    options.storage.put(binding.data, function () {
+
+                        instance.completeStorageOp();
                         instance.emit('saved');
                     });
                 });
