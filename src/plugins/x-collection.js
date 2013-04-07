@@ -15,9 +15,9 @@ module.exports = function (instance, options) {
 
         getChildTemplateNode = function (collection) {
             var childTag = getChildTag(collection),
-                path = collection.getAttribute('x-collection'),
-                node = document.createElement(childTag);
-            node.setAttribute('x-bind', 'x-id:' + path + '.x');
+                pointer  = collection.getAttribute('x-collection'),
+                node     = document.createElement(childTag);
+            node.setAttribute('x-bind', 'x-id:' + pointer + '.x');
             return node;
         };
 
@@ -26,8 +26,8 @@ module.exports = function (instance, options) {
 
         var collections = instance.el.querySelectorAll('[x-collection]');
         each(collections, function (collection) {
-            var path = collection.getAttribute('x-collection');
-            collection.setAttribute('x-each', path);
+            var pointer = collection.getAttribute('x-collection');
+            collection.setAttribute('x-each', pointer);
             collection.appendChild(getChildTemplateNode(collection));
 
             toolbar(instance.el, {

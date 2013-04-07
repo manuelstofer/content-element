@@ -9,10 +9,10 @@ describe('ContentElement', function () {
 
         var template = parker.compile(
                 '<div class="">' +
-                   '<h1 x-bind="title" id="title">{. title}</h1>' +
-                   '<p x-bind="content" id="content">{. content}</p>' +
-                   '<ul x-each="tags" id="tags">' +
-                        '{each tags <li x-bind="tags.x">{.}</li>}' +
+                   '<h1 x-bind="/title" id="title">{. title}</h1>' +
+                   '<p x-bind="/content" id="content">{. content}</p>' +
+                   '<ul x-each="/tags" id="tags">' +
+                        '{each tags <li x-bind="/tags/x">{.}</li>}' +
                    '</ul>' +
                 '</div>'
             ),
@@ -50,7 +50,7 @@ describe('ContentElement', function () {
 
     it('should update the document in the storage', function (done) {
 
-        var template = parker.compile('<input x-bind="value:title" id="title" />'),
+        var template = parker.compile('<input x-bind="value:/title" id="title" />'),
 
             docs = {
                 '1': {
@@ -89,7 +89,7 @@ describe('ContentElement', function () {
 
     it('should render subviews', function (done) {
 
-        var template = parker.compile('<input x-bind="value:title" class="title" />' +
+        var template = parker.compile('<input x-bind="value:/title" class="title" />' +
                 '{has subview ' +
                     '<div class="subview" x-template="template" x-id="{. subview}"></div>' +
                 '}'),
@@ -129,12 +129,12 @@ describe('ContentElement', function () {
     it('click on x-remove should remove items', function (done) {
 
         var list = parker.compile(
-                '<ul x-each="list">' +
-                    '<li x-template="item" x-bind="x-id:list.x"></li>' +
+                '<ul x-each="/list">' +
+                    '<li x-template="item" x-bind="x-id:/list/x"></li>' +
                 '</ul>'
             ),
 
-            item = parker.compile('<span x-bind="text"></span> <span x-remove>remove</span>'),
+            item = parker.compile('<span x-bind="/text"></span> <span x-remove>remove</span>'),
 
 
             docs = {
@@ -182,7 +182,7 @@ describe('ContentElement', function () {
                 '<div x-query=\'{literal {"type": "item"}}\'></div>'
             ),
 
-            item = parker.compile('<span x-bind="class:example" class=""></span>'),
+            item = parker.compile('<span x-bind="class:/example" class=""></span>'),
 
             docs = {
                 '1': {
