@@ -8,7 +8,7 @@ describe('ContentElement', function () {
     it('should render document to the dom', function () {
 
         var template = parker.compile(
-                '<div class="">' +
+                '<div>' +
                    '<h1 x-bind="/title" id="title">{. title}</h1>' +
                    '<p x-bind="/content" id="content">{. content}</p>' +
                    '<ul x-each="/tags" id="tags">' +
@@ -28,24 +28,23 @@ describe('ContentElement', function () {
 
             client = storage.mock({docs: docs}),
 
-            instance = content.ContentElement({
-                id:       '0-0-0',
-                storage:  client,
-                templates: {
-                    "example.html": template
+            view = content.ContentElement(
+                {
+                    id:       '0-0-0',
+                    storage:  client,
+                    templates: {
+                        "example": template
+                    }
+                },
+                function (err) {
+                    document.body.appendChild(view.el);
+                    document.getElementById('title').innerHTML.should.equal('title');
+                    document.getElementById('tags').children.length.should.equal(3);
+                    document.getElementById('content').innerHTML.should.equal('lorem ipsum dolor');
+                    document.body.removeChild(view.el);
                 }
-            });
+            );
 
-
-
-        document.body.appendChild(instance.el);
-        instance.on('initialized', function () {
-            document.getElementById('title').innerHTML.should.equal('title');
-            document.getElementById('tags').children.length.should.equal(3);
-            document.getElementById('content').innerHTML.should.equal('lorem ipsum dolor');
-
-            document.body.removeChild(instance.el);
-        });
     });
 
     it('should update the document in the storage', function (done) {
@@ -61,30 +60,33 @@ describe('ContentElement', function () {
 
             client = storage.mock({docs: docs}),
 
-            instance = content.ContentElement({
-                id:       '1',
-                storage:  client,
-                templates: {
-                    "example.html": template
+            view = content.ContentElement(
+                {
+                    id:       '1',
+                    storage:  client,
+                    templates: {
+                        "example": template
+                    }
+                },
+                function (err) {
+
+                    document.body.appendChild(view.el);
+
+                    var title = view.el.querySelector('#title');
+                    title.value.should.equal('title');
+                    title.value = 'changed';
+                    triggerEvent(title, 'input');
+
+                    view.on('saved', function () {
+                        client.get(1, function (notification) {
+                            notification.doc._id.should.equal('1');
+                            notification.doc.title.should.equal('changed');
+                            done();
+                        });
+                    });
                 }
-            });
+            );
 
-        instance.on('initialized', function () {
-
-            var title = instance.el.querySelector('#title');
-            document.body.appendChild(instance.el);
-            title.value.should.equal('title');
-            title.value = 'changed';
-            triggerEvent(title, 'input');
-
-            instance.on('saved', function () {
-                client.get(1, function (notification) {
-                    notification.doc._id.should.equal('1');
-                    notification.doc.title.should.equal('changed');
-                    done();
-                });
-            });
-        });
     });
 
     it('should render subviews', function (done) {
@@ -106,23 +108,23 @@ describe('ContentElement', function () {
                 }
             },
 
-            instance = content.ContentElement({
-                id:       '1',
-                storage:  storage.mock({docs: docs}),
-                templates: {
-                    "example.html": template
+            view = content.ContentElement(
+                {
+                    id:       '1',
+                    storage:  storage.mock({docs: docs}),
+                    templates: {
+                        "example": template
+                    }
+                },
+                function () {
+                    document.body.appendChild(view.el);
+                    var title = view.el.querySelector('.subview .title');
+                    title.value.should.equal('title-2');
+
+                    triggerEvent(title, 'input');
+                    done();
                 }
-            });
-
-        instance.on('initialized', function () {
-            document.body.appendChild(instance.el);
-            var title = instance.el.querySelector('.subview .title');
-            title.value.should.equal('title-2');
-
-            triggerEvent(title, 'input');
-            done();
-        });
-
+            );
     });
 
 
@@ -130,13 +132,11 @@ describe('ContentElement', function () {
 
         var list = parker.compile(
                 '<ul x-each="/list">' +
-                    '<li x-template="item" x-bind="x-id:/list/x"></li>' +
+                    '<li x-bind="x-id:/list/x"></li>' +
                 '</ul>'
             ),
 
             item = parker.compile('<span x-bind="/text"></span> <span x-remove>remove</span>'),
-
-
             docs = {
                 '1': {
                     type: 'list',
@@ -154,26 +154,29 @@ describe('ContentElement', function () {
 
             client = storage.mock({docs: docs}),
 
-            instance = content.ContentElement({
-                id:       '1',
-                storage:  client,
-                templates: {
-                    "list.html": list,
-                    "item.html": item
+            view = content.ContentElement(
+                {
+                    id:       '1',
+                    storage:  client,
+                    templates: {
+                        "list": list,
+                        "item": item
+                    }
+                },
+                function () {
+                    document.body.appendChild(view.el);
+                    var removeNode = view.el.querySelectorAll('[x-remove]')[1];
+                    triggerEvent(removeNode, 'click');
+                    view.once('dom-doc-changed', function () {
+                        client.get(1, function (notification) {
+                            notification.doc.list.length.should.equal(1);
+                            notification.doc.list[0].should.equal('2');
+                            done();
+                        });
+                    });
                 }
-            });
+            );
 
-        document.body.appendChild(instance.el);
-
-        instance.on('initialized', function () {
-            var removeNode = instance.el.querySelectorAll('[x-remove]')[1];
-            triggerEvent(removeNode, 'click');
-            client.get(1, function (notification) {
-                notification.doc.list.length.should.equal(1);
-                notification.doc.list[0].should.equal('2');
-                done();
-            });
-        })
     });
 
     it('should be possible do queries using x-query', function (done) {
@@ -196,37 +199,37 @@ describe('ContentElement', function () {
 
             client = storage.mock({docs: docs}),
 
-            instance = content.ContentElement({
-                id:       'query-element',
-                storage:  client,
-                templates: {
-                    "item.html": item,
-                    "query.html": query
+            view = content.ContentElement(
+                {
+                    id:       'query-element',
+                    storage:  client,
+                    templates: {
+                        item: item,
+                        query: query
+                    }
+                },
+                function () {
+                    document.body.appendChild(view.el);
+                    expect(view.el.querySelector('.bla')).to.be.defined;
+
+                    client.put({type: 'item', example: 'added-element'}, function (n) {
+
+                        setTimeout(function () {
+                            view.el.querySelector('.added-element').should.be.defined;
+
+                            client.del('1');
+                            client.del(n.doc._id);
+
+                            setTimeout(function () {
+                                expect(view.el.querySelector('.bla')).to.be.null
+                                expect(view.el.querySelector('.added-element')).to.be.null
+                                done();
+                            }, 30);
+
+                        }, 30);
+                    });
                 }
-            });
-
-        document.body.appendChild(instance.el);
-
-        instance.on('initialized', function () {
-            instance.el.querySelector('.bla').should.be.defined;
-
-            client.put({type: 'item', example: 'added-element'}, function (n) {
-
-                setTimeout(function () {
-                    instance.el.querySelector('.added-element').should.be.defined;
-
-                    client.del('1');
-                    client.del(n.doc._id);
-
-                    setTimeout(function () {
-                        expect(instance.el.querySelector('.bla')).to.be.null
-                        expect(instance.el.querySelector('.added-element')).to.be.null
-
-                        done();
-                    }, 30);
-                }, 30);
-            });
-        });
+            );
     });
 });
 

@@ -1,0 +1,43 @@
+'use strict';
+
+var each    = require('each'),
+    toolbar = require('toolbar'),
+    trigger = require('trigger-event');
+
+module.exports = CollectionToolbar;
+
+/**
+ * Adds the toolbar for Collections
+ *
+ * @param view
+ * @param clb
+ */
+function CollectionToolbar (view, clb) {
+
+    var storage = view.storage;
+
+    var collections = view.el.querySelectorAll('[x-collection]');
+    each(collections, addToolbar);
+
+    function addToolbar (collection ){
+        toolbar(view.el, {
+            height: 20,
+            position: 'left',
+            icons: {
+                "build/manuelstofer-content-element/resources/add.svg":  function () {
+                    var contains = collection.getAttribute('x-contains'),
+                        newElement = {
+                            type: contains
+                        };
+                    storage.put(newElement, function (notification) {
+                        var childNode = getChildTemplateNode(collection)
+                        childNode.setAttribute('x-id', notification.doc._id);
+                        collection.appendChild(childNode);
+                        trigger(childNode, 'read');
+                    });
+                }
+            }
+        });
+    }
+    clb();
+}
