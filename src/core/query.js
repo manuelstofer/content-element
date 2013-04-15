@@ -60,16 +60,17 @@ function Query (view, clb) {
     }
 
     function addQueryResult (node, id, fn) {
-        return ContentElement(
+        var resultView = ContentElement(
             {
                 id:        id,
                 storage:   storage,
                 templates: view.templates
             },
             function (err, view) {
-                node.appendChild(view.el);
                 if (fn) { fn(); }
             }
         );
+        node.appendChild(resultView.el);
+        return resultView;
     }
 }
