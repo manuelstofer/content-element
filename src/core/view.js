@@ -1,7 +1,8 @@
 'use strict';
 
 var extend  = require('extend'),
-    View    = require('koboldmaki');
+    View    = require('koboldmaki'),
+    util    = require('../util/util');
 
 module.exports = CreateView;
 
@@ -23,7 +24,7 @@ function CreateView (options) {
                 view.el.parentNode.removeChild(view.el);
             }
         }
-    }, options));
+    }, util, options));
 
     return view;
 }

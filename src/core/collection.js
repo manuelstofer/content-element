@@ -1,7 +1,6 @@
 'use strict';
 
-var each = require('foreach'),
-    util = require('../util/util');
+var each = require('foreach');
 
 module.exports = Collection;
 
@@ -19,7 +18,7 @@ function Collection (view, clb) {
         if (collection.childNodes.length === 0) {
             var pointer = collection.getAttribute('x-collection');
             collection.setAttribute('x-each', pointer);
-            collection.appendChild(util.getChildTemplateNode(collection));
+            collection.appendChild(view.getChildTemplateNode(collection));
         }
     });
     clb();

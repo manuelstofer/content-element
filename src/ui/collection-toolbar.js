@@ -2,8 +2,7 @@
 
 var each    = require('foreach'),
     toolbar = require('toolbar'),
-    trigger = require('trigger-event'),
-    util    = require('../util/util');
+    trigger = require('trigger-event');
 
 module.exports = CollectionToolbar;
 
@@ -31,7 +30,7 @@ function CollectionToolbar (view, clb) {
                             type: contains
                         };
                     storage.put(newElement, function (notification) {
-                        var childNode = util.getChildTemplateNode(collection)
+                        var childNode = view.getChildTemplateNode(collection)
                         childNode.setAttribute('x-id', notification.doc._id);
                         collection.appendChild(childNode);
                         trigger(collection, 'read', {bubbles: true});

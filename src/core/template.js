@@ -1,5 +1,4 @@
 'use strict';
-var util = require('../util/util');
 
 module.exports = Template;
 
@@ -15,7 +14,7 @@ function Template (view, clb) {
         type        = view.doc.type,
 
         getTemplate = function () {
-            var context         = util.getContext(view.el),
+            var context         = view.getContext(view.el),
                 templateName    = type,
                 contextTemplate = templates[context + '/' + templateName],
                 template        = contextTemplate || templates[templateName];
