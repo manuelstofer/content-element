@@ -1,8 +1,9 @@
 'use strict';
 
-var each    = require('each'),
+var each    = require('foreach'),
     toolbar = require('toolbar'),
-    trigger = require('trigger-event');
+    trigger = require('trigger-event'),
+    util    = require('../util/util');
 
 module.exports = CollectionToolbar;
 
@@ -16,10 +17,10 @@ function CollectionToolbar (view, clb) {
 
     var storage = view.storage;
 
-    var collections = view.el.querySelectorAll('[x-collection]');
+    var collections = view.$('[x-collection]');
     each(collections, addToolbar);
 
-    function addToolbar (collection ){
+    function addToolbar (collection){
         toolbar(view.el, {
             height: 20,
             position: 'left',
@@ -30,10 +31,10 @@ function CollectionToolbar (view, clb) {
                             type: contains
                         };
                     storage.put(newElement, function (notification) {
-                        var childNode = getChildTemplateNode(collection)
+                        var childNode = util.getChildTemplateNode(collection)
                         childNode.setAttribute('x-id', notification.doc._id);
                         collection.appendChild(childNode);
-                        trigger(childNode, 'read');
+                        trigger(collection, 'read', {bubbles: true});
                     });
                 }
             }

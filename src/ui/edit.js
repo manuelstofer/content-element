@@ -2,6 +2,8 @@
 
 module.exports = Edit;
 
+var dialog = require('dialog');
+
 /**
  * Creates an edit view to edit the element
  * in an overlay with the edit context template
@@ -19,14 +21,18 @@ function Edit (view, clb) {
         var editNode = document.createElement('div');
         editNode.setAttribute('x-context', 'edit');
 
-        ContentElement({
-            el:         editNode,
-            id:         view.getId(),
-            storage:    options.storage,
-            templates:  options.templates
-        });
+        ContentElement(
+            {
+                el:         editNode,
+                id:         view.getId(),
+                storage:    view.storage,
+                templates:  view.templates
+            },
+            function () {
+                dialog(editNode).overlay().show();
+            }
+        );
 
-        dialog(editNode).overlay().show();
     });
 
     clb();

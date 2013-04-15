@@ -7,16 +7,17 @@
         "manuelstofer/foreach": "*",
         "manuelstofer/pflock": "*",
         "manuelstofer/koboldmaki": "*",
-        "manuelstofer/richardparker": "*",
         "manuelstofer/repo": "*",
         "manuelstofer/toolbar": "*",
         "manuelstofer/mapr": "*",
         "component/event": "*",
         "component/dialog": "*",
-        "manuelstofer/trigger-event": "*",
+        "adamsanderson/trigger-event": "*",
         "manuelstofer/extend": "*"
     },
-    "development": {},
+    "development": {
+        "manuelstofer/richardparker": "*"
+    },
     "scripts": [
         "index.js",
         "src/content-element.js",

@@ -1,7 +1,6 @@
 'use strict';
 
-var each    = require('foreach'),
-    event   = require('event');
+var each    = require('foreach');
 
 module.exports = Query;
 
@@ -16,7 +15,7 @@ function Query (view, clb) {
     var ContentElement  = require('../content-element'),
         storage = view.storage;
 
-    var queryElements = view.el.querySelectorAll('[x-query]');
+    var queryElements = view.$('[x-query]');
     each(queryElements, initNode);
     if (queryElements.length === 0) { clb(); }
 

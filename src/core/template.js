@@ -20,14 +20,15 @@ function Template (view, clb) {
                 contextTemplate = templates[context + '/' + templateName],
                 template        = contextTemplate || templates[templateName];
 
-            if (!template) {
-                clb('no template');
-                throw new Error('No template found for type: ' + type);
-            }
+
             return template;
         };
 
     var template = getTemplate();
-    view.el.innerHTML = template(view.doc);
-    clb();
+    if (!template) {
+        clb('no template');
+    } else {
+        view.el.innerHTML = template(view.doc);
+        clb();
+    }
 }

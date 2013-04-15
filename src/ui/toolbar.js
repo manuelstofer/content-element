@@ -22,7 +22,7 @@ function Toolbar (view, clb)  {
         view.storage.del(view.getId());
     };
 
-    if (view.templates['edit/' + view.doc.type + '.html']) {
+    if (view.templates['edit/' + view.doc.type]) {
         icons[getIconPath('edit.svg')] = function () {
             view.emit('edit');
         };

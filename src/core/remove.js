@@ -13,7 +13,7 @@ module.exports = Remove;
  * @param clb
  */
 function Remove (view, clb) {
-    var nodes = view.el.querySelectorAll('[x-remove]');
+    var nodes = view.$('[x-remove]');
     each(nodes, function (node) {
         event.bind(node, 'click', function (e) {
             view.storage.del(view.getId());

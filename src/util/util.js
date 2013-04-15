@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = {
+var util = module.exports = {
 
     /**
      * Returns the template context of a dom element
@@ -16,5 +16,21 @@ module.exports = {
             }
             el = el.parentNode;
         }
+    },
+
+    getChildTag: function (collection) {
+        var tagMap = {
+            UL: 'LI',
+            OL: 'LI'
+        };
+        return tagMap[collection.nodeName] || 'div'
+    },
+
+    getChildTemplateNode: function (collection) {
+        var childTag = util.getChildTag(collection),
+            pointer  = collection.getAttribute('x-collection'),
+            node     = document.createElement(childTag);
+        node.setAttribute('x-bind', 'x-id:' + pointer + '/x');
+        return node;
     }
 };

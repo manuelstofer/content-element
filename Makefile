@@ -5,7 +5,7 @@ install:
 
 build: install
 	@echo build ...
-	@./node_modules/.bin/component-install
+	@./node_modules/.bin/component-install -d
 	@./node_modules/.bin/component-build -d
 
 test: build

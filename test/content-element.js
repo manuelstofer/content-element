@@ -116,7 +116,7 @@ describe('ContentElement', function () {
                         "example": template
                     }
                 },
-                function () {
+                function (bla) {
                     document.body.appendChild(view.el);
                     var title = view.el.querySelector('.subview .title');
                     title.value.should.equal('title-2');

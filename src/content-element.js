@@ -18,11 +18,12 @@ function ContentElement (options, clb) {
             require('./core/collection'),
             require('./core/binding'),
             require('./core/remove'),
+            require('./ui/collection-toolbar'),
             require('./core/subelement'),
             require('./core/query'),
             require('./ui/edit'),
             require('./ui/toolbar'),
-            function () { clb(null, view); }
+            function () { if (clb) { clb(null, view);} }
         ];
 
     function sequential (sequence) {
@@ -30,7 +31,7 @@ function ContentElement (options, clb) {
             return clb(null);
         }
         sequence[0](view, function (err) {
-            if (err) { clb(err) }
+            if (err && clb) { clb(err) }
             sequential(sequence.slice(1));
         });
     }

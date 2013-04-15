@@ -1,8 +1,7 @@
 'use strict';
 
 var each            = require('foreach'),
-    event           = require('event'),
-    toolbar         = require('toolbar'),
+    trigger         = require('trigger-event'),
     ContentElement  = require('../content-element');
 
 module.exports = SubElement;
@@ -16,11 +15,25 @@ module.exports = SubElement;
  */
 function SubElement (view, clb) {
 
-    var nodes = view.el.querySelectorAll('[x-id]'),
-        elementsToInitialize = 0;
 
-    each(nodes, initSubElement);
-    if (nodes.length === 0) { clb(); }
+    var toInit = 0,
+        ready = false;
+
+    if (getSubElements().length === 0) { clb(); }
+
+    view.on('storage-doc-changed', function () {
+        initSubElements(getSubElements());
+    });
+
+    initSubElements(getSubElements());
+
+    function getSubElements () {
+        return view.$('[x-id]');
+    }
+
+    function initSubElements (nodes) {
+        each(nodes, initSubElement);
+    }
 
     /**
      * Replaces a DOM Node with a clone without event handlers
@@ -35,8 +48,14 @@ function SubElement (view, clb) {
         return clone;
     }
 
-    function elementInitialized () {
-        if (--elementsToInitialize === 0) {
+
+    /**
+     * Decrements elements to initialize
+     * calls callback when all elements are initialized
+     */
+    function initialized () {
+        if (--toInit === 0 && !ready) {
+            ready = true;
             clb();
         }
     }
@@ -50,15 +69,20 @@ function SubElement (view, clb) {
     function initSubElement (node) {
         var id = node.getAttribute('x-id');
         if (id !== node.contentElementId) {
-            elementsToInitialize++;
+            ++toInit;
+            node = cleanNode(node);
             var options = {
                 id:        id,
-                el:        cleanNode(node),
+                el:        node,
                 storage:   view.storage,
                 templates: view.templates
             };
-            var v = ContentElement(options, function (err) {
-                elementInitialized(err);
+            ContentElement(options, function (err) {
+                if (err && err.error == 'not-found') {
+                    node.parentNode.removeChild(node);
+                    trigger(view.el, 'read');
+                }
+                initialized();
             });
         }
     }
