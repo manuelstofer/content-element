@@ -1,6 +1,7 @@
 'use strict';
 
-var View = require('./core/view');
+var View    = require('./core/view'),
+    trigger = require('trigger-event');
 
 module.exports = ContentElement;
 
@@ -23,10 +24,12 @@ function ContentElement (options, clb) {
             require('./core/query'),
             require('./ui/edit'),
             require('./ui/toolbar'),
-            function () { if (clb) { clb(null, view);} }
+            complete
         ];
 
-    function sequential (sequence) {
+    sequential(init);
+
+    function sequential(sequence) {
         if (sequence.length == 0) {
             return clb(null);
         }
@@ -35,6 +38,18 @@ function ContentElement (options, clb) {
             sequential(sequence.slice(1));
         });
     }
-    sequential(init);
+
+    function complete(err) {
+        if (clb) {
+            clb(err, view);
+            trigger(view.el, 'add-element', {
+                bubbles: true,
+                detail: {
+                    view: view
+                }
+            });
+        }
+    }
+
     return view;
 }
