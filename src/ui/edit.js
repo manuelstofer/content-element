@@ -2,7 +2,8 @@
 
 module.exports = Edit;
 
-var dialog = require('dialog');
+var dialog = require('dialog'),
+    ContentElement = require('../content-element');
 
 /**
  * Creates an edit view to edit the element
@@ -14,7 +15,6 @@ var dialog = require('dialog');
  * @param clb
  */
 function Edit (view, clb) {
-    var ContentElement = require('../content-element');
 
     view.on('edit', function () {
 
