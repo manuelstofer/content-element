@@ -9,8 +9,10 @@ var util = module.exports = {
      * @returns {String|undefined}
      */
     getContext: function (el) {
-        while (el.parentNode) {
-            var context = el.getAttribute('x-context');
+        while (el) {
+            if (el.getAttribute) {
+                var context = el.getAttribute('x-context');
+            }
             if (context) {
                 return context;
             }
