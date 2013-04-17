@@ -40,15 +40,13 @@ function ContentElement (options, clb) {
     }
 
     function complete(err) {
-        if (clb) {
-            clb(err, view);
-            trigger(view.el, 'add-element', {
-                bubbles: true,
-                detail: {
-                    view: view
-                }
-            });
-        }
+        trigger(view.el, 'add-element', {
+            bubbles: true,
+            detail: {
+                view: view
+            }
+        });
+        if (clb) { clb(err, view); }
     }
 
     return view;
