@@ -20,7 +20,7 @@ function CollectionToolbar (view, clb) {
     each(collections, addToolbar);
 
     function addToolbar (collection){
-        toolbar(view.el, {
+        toolbar(collection, {
             height: 20,
             position: 'left',
             icons: {
